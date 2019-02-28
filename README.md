@@ -1,2 +1,2 @@
 # geo_projects
-Projects with a geographical nature
+Projects  geographical nature
