@@ -1,5 +1,5 @@
-
 # Function to clean up the code
+
 def get_traffic():
     # Importing packages
     import pandas as pd
@@ -35,7 +35,9 @@ def get_traffic():
     for i in range(len(soup.find_all('li', "item clr"))):
         data = {'location':soup.find_all('li', "item clr")[i].find_all('span', 'location_name')[0].text,
         'timestamp':soup.find_all('li', "item clr")[i].find_all('span', 'timestamp')[0].text,
-        'description':clean_desc(soup.find_all('li', "item clr")[i].find_all('span', 'description')[0].text).split(' : ')[-1],
+        'description':clean_desc(soup.find_all('li', "item clr")[i].find_all('span', 'description')[0].text).split(' : ')[-1].split(' - ')[1],
+        'reason':clean_desc(soup.find_all('li', "item clr")[i].find_all('span', 'description')[0].text).split(' : ')[-1].split(' - ')[0],
+        'situation':clean_desc(soup.find_all('li', "item clr")[i].find_all('span', 'description')[0].text).split(' : ')[-1].split(' - ')[-1],
         'area':clean_desc(soup.find_all('li', "item clr")[i].find_all('span', 'description')[0].text).split(' : ')[0],
         'direction': clean_desc(soup.find_all('li', "item clr")[i].find_all('span', 'description')[0].text).split(' : ')[1]}
         if len(df) == 0:
@@ -47,6 +49,8 @@ def get_traffic():
     for i in df.index:
         if len(df.direction[i].split(' ')) != 1:
             df.direction[i] = 'Direction Unknown'
+        if df.situation[i] == df.description[i]:
+            df.situation[i] = 'Situation Unknown'
 
     if len(df) == 0:
         return print('No data available at this time!')
