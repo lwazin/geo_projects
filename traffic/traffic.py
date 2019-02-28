@@ -1,52 +1,51 @@
-# Importing packages
-import pandas as pd
-from bs4 import BeautifulSoup as bs4
-import requests
 
-# Processing webpage for BeautifulSoup
-request = requests.get('https://m.news24.com/Traffic/Gauteng')
-page = request.content
-soup = bs4(page)
+# Function to clean up the code
+def get_traffic():
+    # Importing packages
+    import pandas as pd
+    from bs4 import BeautifulSoup as bs4
+    import requests
 
-# Finding value within the web page
-# The value we are interested in is placed within list objects, of class 'item clr'
-len(soup.find_all('li', "item clr"))
-# The page returns a list of 10 items.. This is traffic data
+    def help(data):
+        unwanted = ['\r', '\n', '\xa0']
+        for i in unwanted:
+            data = data.replace(i, ' ')
 
-# Let's look at the data provided by a single item within this list:
-name = soup.find_all('li', "item clr")[1].find_all('span', 'location_name')[0].text # Name
-ts = soup.find_all('li', "item clr")[1].find_all('span', 'timestamp')[0].text # TimeStamp
-desc = soup.find_all('li', "item clr")[0].find_all('span', 'description')[0].text # Description
+            count = 0
+            for i in data:
+                if i.isalnum() == True:
+                    data = data[count:]
+                    break
+                else:
+                    count += 1
+                    return data
 
-# The name as it is seems clean, the timestamp too.. Our focus is on the description!
+                    def clean_desc(data):
+                        return help(help(data)[::-1])[::-1]
 
-def help(data):
-    unwanted = ['\r', '\n', '\xa0']
-    for i in unwanted:
-        data = data.replace(i, ' ')
+    df = pd.DataFrame()
 
-    count = 0
-    for i in data:
-        if i.isalnum() == True:
-            data = data[count:]
-            break
+    prov = input('Choose a province..\n\n 1) Eastern Cape,\n 2) Free State,\n 3) Gauteng,\n 4) KwaZulu-Natal,\n 5) Limpopo,\n 6) Mpumalanga,\n 7) North West,\n 8) Northern Cape,\n 9) Western Cape')
+    province = {'1': 'Eastern_Cape', '2': 'Free_State', '3': 'Gauteng', '4': 'KwaZulu-Natal', '5': 'Limpopo', '6': 'Mpumalanga', '7': 'North_West', '8': 'Northern_Cape', '9': 'Western_Cape'}
+
+    request = requests.get('https://m.news24.com/Traffic/'+province[prov])
+    page = request.content
+    soup = bs4(page)
+    len(soup.find_all('li', "item clr"))
+
+    for i in range(len(soup.find_all('li', "item clr"))):
+        data = {'location':soup.find_all('li', "item clr")[i].find_all('span', 'location_name')[0].text,
+        'timestamp':soup.find_all('li', "item clr")[i].find_all('span', 'timestamp')[0].text,
+        'description':clean_desc(soup.find_all('li', "item clr")[i].find_all('span', 'description')[0].text)}
+        if len(df) == 0:
+            df = pd.DataFrame([data])
         else:
-            count += 1
-    return data
+            df = df.append(pd.DataFrame([data]))
 
-def clean_desc(data):
-    return help(help(data)[::-1])[::-1]
-
-clean_desc(desc)
-
-# Now, putting all data in a dataframe
-for i in range(len(soup.find_all('li', "item clr"))):
-    data = {'location':soup.find_all('li', "item clr")[i].find_all('span', 'location_name')[0].text,
-    'timestamp':soup.find_all('li', "item clr")[i].find_all('span', 'timestamp')[0].text,
-    'description':clean_desc(soup.find_all('li', "item clr")[i].find_all('span', 'description')[0].text)}
+    df.index = range(len(df))
     if len(df) == 0:
-        df = pd.DataFrame([data])
+        return print('No data available at this time!')
     else:
-        df = df.append(pd.DataFrame([data]))
+        return df
 
-df.index = range(len(df))
+get_traffic()
