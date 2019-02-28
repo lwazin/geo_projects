@@ -19,29 +19,34 @@ ts = soup.find_all('li', "item clr")[1].find_all('span', 'timestamp')[0].text # 
 desc = soup.find_all('li', "item clr")[0].find_all('span', 'description')[0].text # Description
 
 # The name as it is seems clean, the timestamp too.. Our focus is on the description!
-unwanted = ['\r', '\n', '\xa0']
-for i in unwanted:
-    desc = desc.replace(i, ' ')
 
-count_pos = 0
-for i in desc:
-    if i.isalnum() == True:
-        desc = desc[count_pos:]
-        break
+def help(data):
+    unwanted = ['\r', '\n', '\xa0']
+    for i in unwanted:
+        data = data.replace(i, ' ')
+
+    count = 0
+    for i in data:
+        if i.isalnum() == True:
+            data = data[count:]
+            break
+        else:
+            count += 1
+    return data
+
+def clean_desc(data):
+    return help(help(data)[::-1])[::-1]
+
+clean_desc(desc)
+
+# Now, putting all data in a dataframe
+for i in range(len(soup.find_all('li', "item clr"))):
+    data = {'location':soup.find_all('li', "item clr")[i].find_all('span', 'location_name')[0].text,
+    'timestamp':soup.find_all('li', "item clr")[i].find_all('span', 'timestamp')[0].text,
+    'description':clean_desc(soup.find_all('li', "item clr")[i].find_all('span', 'description')[0].text)}
+    if len(df) == 0:
+        df = pd.DataFrame([data])
     else:
-        count_pos += 1
+        df = df.append(pd.DataFrame([data]))
 
-count_pos = 0
-desc = desc[::-1]
-for i in desc:
-    if i.isalnum() == True:
-        desc = desc[count_pos:]
-        break
-    else:
-        count_pos += 1
-
-desc = desc[::-1]
-
-
-
-desc
+df.index = range(len(df))
