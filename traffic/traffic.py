@@ -14,8 +14,34 @@ len(soup.find_all('li', "item clr"))
 # The page returns a list of 10 items.. This is traffic data
 
 # Let's look at the data provided by a single item within this list:
-soup.find_all('li', "item clr")[0].find_all('span', 'location_name')[0].text # Name
-soup.find_all('li', "item clr")[0].find_all('span', 'timestamp')[0].text # TimeStamp
-soup.find_all('li', "item clr")[0].find_all('span', 'description')[0].text # Description
+name = soup.find_all('li', "item clr")[1].find_all('span', 'location_name')[0].text # Name
+ts = soup.find_all('li', "item clr")[1].find_all('span', 'timestamp')[0].text # TimeStamp
+desc = soup.find_all('li', "item clr")[0].find_all('span', 'description')[0].text # Description
 
-# These values, being a sample of the crude data values we can mine.. Clearly we need to clean it up a bit!
+# The name as it is seems clean, the timestamp too.. Our focus is on the description!
+unwanted = ['\r', '\n', '\xa0']
+for i in unwanted:
+    desc = desc.replace(i, ' ')
+
+count_pos = 0
+for i in desc:
+    if i.isalnum() == True:
+        desc = desc[count_pos:]
+        break
+    else:
+        count_pos += 1
+
+count_pos = 0
+desc = desc[::-1]
+for i in desc:
+    if i.isalnum() == True:
+        desc = desc[count_pos:]
+        break
+    else:
+        count_pos += 1
+
+desc = desc[::-1]
+
+
+
+desc
