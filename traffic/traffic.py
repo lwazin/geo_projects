@@ -31,14 +31,16 @@ def get_traffic():
     request = requests.get('https://m.news24.com/Traffic/'+province[prov])
     page = request.content
     soup = bs4(page)
-    pages = int(soup.find_all('div', {"class": 'pageing_wrap'})[0].find_all('div')[0].text.split(' ')[-1])
+    if len(soup.find_all('div', {"class": 'pageing_wrap'})) == 0:
+        pages = 1
+    else:
+        pages = int(soup.find_all('div', {"class": 'pageing_wrap'})[0].find_all('div')[0].text.split(' ')[-1])
 
     for i in range(1,pages+1):
 
         request = requests.get('https://m.news24.com/Traffic/'+province[prov]+'/'+str(1))
         page = request.content
         soup = bs4(page)
-        len(soup.find_all('li', "item clr"))
 
         df = pd.DataFrame()
         for i in range(len(soup.find_all('li', "item clr"))):
