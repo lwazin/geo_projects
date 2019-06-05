@@ -6,10 +6,20 @@ from datetime import datetime
 # Basic data collection for future reference, if needed.
 # - Lwazi Ndlovu, 28 May 2019
 
+
+def view_current():
+# For viewing current data on base.csv
+
+    try:
+        return pd.read_csv('base.csv')
+    except:
+        return print('No Data File Found!')
+
+
 class Tenant():
 # Tenant class, prototype for all tenants.. consolidation of all data.
 
-    def __init__(self, df=None):
+    def __init__(self, df_name=None):
     # Getting all basic data of new tenant..
 
         self.months = {2: "Feb", 3: "Mar", 4: "Apr", 5: "May", 6: "Jun", 7: "Jul", 8: "Aug", 9: "Sep", 10: "Oct", 11: "Nov", 12: "Dec"}
@@ -17,7 +27,9 @@ class Tenant():
         self.payments = {"Feb": 0, "Mar": 0, "Apr": 0, "May": 0, "Jun": 0, "Jul": 0, "Aug": 0, "Sep": 0, "Oct": 0, "Nov": 0, "Dec": 0}
         self.today = datetime.today()
 
-        if str(type(df)) != "<class 'pandas.core.frame.DataFrame'>":
+        self.init_base()
+
+        if len(self.temp.loc[self.temp.Name == df_name]) <= 0:
 
             self.time_of_entry = datetime.today()
             self.time_of_entry2 = self.months[self.time_of_entry.month]
@@ -29,20 +41,29 @@ class Tenant():
 
         else:
 
-            self.time_of_entry = datetime(int(df.loc[0].TOE.split(' ')[1]), self.months_reverse[df.loc[0].TOE.split(' ')[0]], 1)
+            self.time_of_entry = datetime(int(self.temp.loc[0].TOE.split(' ')[1]), self.months_reverse[self.temp.loc[0].TOE.split(' ')[0]], 1)
             self.time_of_entry2 = self.months[self.time_of_entry.month]
-            self.name = df.loc[0].Name
-            self.house = df.loc[0].House
-            self.payments["depo"] = df.loc[0].Deposit
-            self.email = df.loc[0].Email
-            self.phone = df.loc[0].Phone
-            self.payments["Feb"], self.payments["Mar"], self.payments["Apr"], self.payments["May"], self.payments["Jun"], self.payments["Jul"], self.payments["Aug"], self.payments["Sep"], self.payments["Oct"], self.payments["Nov"], self.payments["Dec"] = df.loc[0].Feb, df.loc[0].Mar, df.loc[0].Apr, df.loc[0].May, df.loc[0].Jun, df.loc[0].Jul, df.loc[0].Aug, df.loc[0].Sep, df.loc[0].Oct, df.loc[0].Nov, df.loc[0].Dec
+            self.name = self.temp.loc[0].Name
+            self.house = self.temp.loc[0].House
+            self.payments["depo"] = self.temp.loc[0].Deposit
+            self.email = self.temp.loc[0].Email
+            self.phone = self.temp.loc[0].Phone
+            self.payments["Feb"], self.payments["Mar"], self.payments["Apr"], self.payments["May"], self.payments["Jun"], self.payments["Jul"], self.payments["Aug"], self.payments["Sep"], self.payments["Oct"], self.payments["Nov"], self.payments["Dec"] = self.temp.loc[0].Feb, self.temp.loc[0].Mar, self.temp.loc[0].Apr, self.temp.loc[0].May, self.temp.loc[0].Jun, self.temp.loc[0].Jul, self.temp.loc[0].Aug, self.temp.loc[0].Sep, self.temp.loc[0].Oct, self.temp.loc[0].Nov, self.temp.loc[0].Dec
+
+
+    def init_base(self):
+        try:
+            self.temp = pd.read_csv('base.csv')
+        except:
+            export = pd.DataFrame(columns=['Name', 'Email', 'Phone', 'House', 'TOE', "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"])
+            export.to_csv('base.csv', index=False)
+            self.init_base()
 
 
     def update_details(self):
     # For updating tenant details.. Name, House, Room Number, Contact Details (email, number)
 
-        self.email = input("Please input Email Address: ")
+        self.email = input("Please input Email Address: ").lower()
         self.phone = input("Please input Phone Number: ")
 
 
@@ -53,6 +74,16 @@ class Tenant():
             month = input("Month to update: ")
 
         self.payments[month[0].upper()+month[1:3].lower()] = self.payments[month[0].upper()+month[1:3].lower()] + amount
+
+    def export_df(self):
+    # Checking if base.csv is in system.. if not, create empty base.to_csv
+    # Append data to base.csv
+
+        export = self.temp.append(self.generate_df(), sort=False)
+        export.index = range(len(export))
+        export.to_csv('base.csv', index=False)
+
+        return print('Export Successful!')
 
 
     def generate_df(self):
@@ -105,24 +136,7 @@ class Tenant():
             print("Amount due: R"+str(due))
 
 
-
 # GUI will be made soon.. For easy use by my Dad and brother..
 # (Terminal usage is always intimidating for non-coders)
 
-Loago = Tenant()
-Loago.report()
-Loago.update_payment('may', 11200)
-Loago.update_details()
-Loago.report()
-Loago.generate_df()
-Loago.update_payment('apr', 2800)
-Loago.generate_df()
-Loago.report()
-Loago_df = Loago.generate_df()
-
-Loago_Backup = Tenant(Loago_df)
-Loago_Backup.generate_df()
-Loago_Backup.report()
-Loago_Backup.update_payment('mar', 2800)
-Loago_Backup.generate_df()
-Loago_Backup.report()
+# Add columns ['Amount Due', 'Overdue', 'Advance']
