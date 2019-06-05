@@ -38,6 +38,8 @@ class Tenant():
             self.payments["depo"] = int(input("Deposit Amount: "))
             self.email = 'NO EMAIL'
             self.phone = 'NO NUMBER'
+            self.advance = 0
+            self.due = 0
 
         else:
 
@@ -48,6 +50,8 @@ class Tenant():
             self.payments["depo"] = self.temp.loc[0].Deposit
             self.email = self.temp.loc[0].Email
             self.phone = self.temp.loc[0].Phone
+            self.advance = self.temp.local[0].Advance
+            self.due = self.temp.local[0].Due
             self.payments["Feb"], self.payments["Mar"], self.payments["Apr"], self.payments["May"], self.payments["Jun"], self.payments["Jul"], self.payments["Aug"], self.payments["Sep"], self.payments["Oct"], self.payments["Nov"], self.payments["Dec"] = self.temp.loc[0].Feb, self.temp.loc[0].Mar, self.temp.loc[0].Apr, self.temp.loc[0].May, self.temp.loc[0].Jun, self.temp.loc[0].Jul, self.temp.loc[0].Aug, self.temp.loc[0].Sep, self.temp.loc[0].Oct, self.temp.loc[0].Nov, self.temp.loc[0].Dec
 
 
@@ -90,7 +94,7 @@ class Tenant():
     # All data of the tenant in a neat table form, easy manipulation!
     # Future updates on this code will enable the user to export Excel documents.
 
-        data = {"Name": self.name, "Email": self.email, "Phone": self.phone, "House": self.house, "TOE": self.time_of_entry2+" "+str(self.today.year), "Deposit": self.payments["depo"], "Feb": self.payments["Feb"], "Mar": self.payments["Mar"], "Apr": self.payments["Apr"], "May": self.payments["May"], "Jun": self.payments["Jun"], "Jul": self.payments["Jul"], "Aug": self.payments["Aug"], "Sep": self.payments["Sep"], "Oct": self.payments["Oct"], "Nov": self.payments["Nov"], "Dec": self.payments["Dec"]}
+        data = {"Name": self.name, "Email": self.email, "Phone": self.phone, "House": self.house, "TOE": self.time_of_entry2+" "+str(self.today.year), "Deposit": self.payments["depo"], "Due": self.due, "Advance": self.advance, "Feb": self.payments["Feb"], "Mar": self.payments["Mar"], "Apr": self.payments["Apr"], "May": self.payments["May"], "Jun": self.payments["Jun"], "Jul": self.payments["Jul"], "Aug": self.payments["Aug"], "Sep": self.payments["Sep"], "Oct": self.payments["Oct"], "Nov": self.payments["Nov"], "Dec": self.payments["Dec"]}
 
         return pd.DataFrame(data=data, index=range(1))
 
@@ -102,41 +106,41 @@ class Tenant():
         print("House: "+self.house+' ('+self.months[self.time_of_entry.month]+' '+str(self.time_of_entry.year)+')')
         print("Deposit: R"+str(self.payments['depo']))
 
-        list = []
+        self.list = []
 
         for i in range(2, self.today.month+1):
             list.append(self.payments[self.months[i]])
 
-        due = self.payments['depo']*(self.today.month-1)-sum(list)
+        self.due = self.payments['depo']*(self.today.month-1)-sum(list)
 
         # print('\n')
-        if due <= 0:
+        if self.due <= 0:
 
-            if due < 0:
+            if self.due < 0:
 
-                print(self.name.split(" ")[0]+"'s rent is up to date and has paid "+str(int(due/-self.payments['depo']))+" month(s) in advance!")
+                print(self.name.split(" ")[0]+"'s rent is up to date and has paid "+str(int(self.due/-self.payments['depo']))+" month(s) in advance!")
             else:
                 print(self.name.split(" ")[0]+"'s rent is up to date!")
 
         else:
 
-            focus_months = []
-            due_months = ''
+            self.focus_months = []
+            self.due_months = ''
 
             for i in range(2, self.today.month+1):
-                focus_months.append(self.months[i])
+                self.focus_months.append(self.months[i])
 
             for i in self.payments.keys():
-                if (i in focus_months) and (self.payments[i] != self.payments['depo']):
+                if (i in self.focus_months) and (self.payments[i] != self.payments['depo']):
 
-                    due_months = due_months+i+', '
+                    self.due_months = self.due_months+i+', '
 
-            print(self.name.split(" ")[0]+"'s rent is "+str(int(due/self.payments['depo']))+" month(s) overdue! ("+due_months[:len(due_months)-2]+")")
+            print(self.name.split(" ")[0]+"'s rent is "+str(int(self.due/self.payments['depo']))+" month(s) overdue! ("+self.due_months[:len(self.due_months)-2]+")")
 
-            print("Amount due: R"+str(due))
+            print("Amount due: R"+str(self.due))
 
 
 # GUI will be made soon.. For easy use by my Dad and brother..
 # (Terminal usage is always intimidating for non-coders)
 
-# Add columns ['Amount Due', 'Overdue', 'Advance']
+# Add columns ['Amount Due']
